@@ -1,0 +1,43 @@
+#lang sicp
+;;----------Function Definition----------------------------------
+(define (enumerate-interval a b)
+  (cond ((> a b) nil)
+        (else (cons a
+                    (enumerate-interval (+ a 1) b)))))
+
+(define (accumulate op initial sequence)
+  (cond ((null? sequence) initial)
+        (else (op (car sequence)
+                  (accumulate op initial (cdr sequence))))))
+
+(define (filter pred sequence)
+  (cond ((null? sequence) nil)
+        ((pred (car sequence)) (cons (car sequence)
+                                     (filter pred (cdr sequence))))
+        (else (filter pred (cdr sequence)))))
+
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+
+(define (all-triples n)
+  (flatmap (lambda (x) (flatmap (lambda (y) (map (lambda (z) (list x y z))
+                                                 (enumerate-interval 1 n)))
+                                (enumerate-interval 1 n)))
+           (enumerate-interval 1 n)))
+
+(define (unique-triples n)
+  (filter (lambda (t) (let ((x (car t))
+                            (y (cadr t))
+                            (z (caddr t)))
+                        (not (or (= x y)
+                                 (= x z)
+                                 (= y z)))))
+          (all-triples n)))
+
+(define (triples-to-sum s n)
+  (filter (lambda (t) (= s
+                         (+ (car t)
+                            (cadr t)
+                            (caddr t))))
+          (unique-triples n)))
+

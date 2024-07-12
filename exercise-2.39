@@ -1,0 +1,28 @@
+#lang sicp
+;;----------Exercise 2.39--------------------------
+(define (reverse sequence)
+  (fold-right (lambda (x y) (append y (list x))) nil sequence))
+
+(define (reverse2 sequence)
+  (fold-left (lambda (x y) (cons y x)) nil sequence))
+
+;;----------Function Definitions-------------------
+
+;; Accumulate
+(define (accumulate op initial sequence)
+  (cond ((null? sequence) initial)
+        (else (op (car sequence)
+                  (accumulate op initial (cdr sequence))))))
+
+;;Fold-Right
+(define fold-right accumulate)
+
+;;Fold-Left
+(define (fold-left op initial sequence)
+  (define (iter result seq)
+    (cond ((null? seq) result)
+          (else (iter (op result (car seq)) (cdr seq)))))
+  (iter initial sequence))
+
+
+

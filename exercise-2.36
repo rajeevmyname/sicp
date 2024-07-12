@@ -1,0 +1,13 @@
+#lang sicp
+;;-----Function Definition-----------------------------
+(define (accumulate op initial sequence)
+  (cond ((null? sequence) initial)
+        (else (op (car sequence)
+                  (accumulate op initial (cdr sequence))))))
+
+
+;;-----Exercise 2.36----------------------------------
+(define (accumulate-n op init seqs)
+  (cond ((null? (car seqs)) nil)
+        (else (cons (accumulate op init (map car seqs))
+                    (accumulate-n op init (map cdr seqs))))))

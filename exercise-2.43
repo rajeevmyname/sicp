@@ -1,0 +1,56 @@
+#lang sicp
+;;----------Function Definition----------------------------------
+(define (enumerate-interval a b)
+  (cond ((> a b) nil)
+        (else (cons a
+                    (enumerate-interval (+ a 1) b)))))
+
+(define (accumulate op initial sequence)
+  (cond ((null? sequence) initial)
+        (else (op (car sequence)
+                  (accumulate op initial (cdr sequence))))))
+
+(define (filter pred sequence)
+  (cond ((null? sequence) nil)
+        ((pred (car sequence)) (cons (car sequence)
+                                     (filter pred (cdr sequence))))
+        (else (filter pred (cdr sequence)))))
+
+(define (flatmap proc seq)
+  (accumulate append nil (map proc seq)))
+
+;;--------------Exercise-2.43------------------------
+(define empty-board nil)
+
+(define (adjoin-position new-row k rest-of-queens)
+  (cons (list new-row k) rest-of-queens))
+
+(define (safe? positions)
+  (accumulate (lambda (x y) (and x y)) #t
+              (map (lambda (x) (let ((row1 (caar positions))
+                                     (column1 (cadar positions))
+                                     (row2 (car x))
+                                     (column2 (cadr x)))
+                                 (not (or (= row1 row2)
+                                          (= column1 column2)
+                                          (= (abs (- row1 row2))
+                                             (abs (- column1 column2)))))))
+                   (cdr positions))))
+
+(define (queen board-size)
+  (define (queen-cols k)
+    (if (= k 0)
+        (list empty-board)
+        (filter
+         (lambda (positions) (safe? positions))
+         (flatmap
+          (lambda (new-row)
+            (map (lambda (rest-of-queens)
+                   (adjoin-position new-row k rest-of-queens))
+                 (queen-cols (- k 1))))
+          (enumerate-interval 1 board-size)))))
+  (queen-cols board-size))
+
+;; After interchanging the order 'queen-cols' is called 'board-size' times for every value of k.
+;; If the board-size is 8, 'queen-cols' will be called 8^8 times
+;; So, if the program in exercise 2.42 takes around time T, this would approximately take 8^8 T?? 
